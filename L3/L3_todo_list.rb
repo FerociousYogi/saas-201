@@ -54,12 +54,11 @@ class TodosList
   end
 
   def to_displayable_list
-    list = []
-    @todos.each do |todo|
+    list = @todos.map do |todo|
       if todo.due_today?
-        list.push(todo.to_displayable_string)
+        todo.to_displayable_string
       else
-        list.push("#{todo.to_displayable_string} #{todo.get_due_date.to_s}")
+        "#{todo.to_displayable_string} #{todo.get_due_date.to_s}"
       end
     end
     list.join("\n")
