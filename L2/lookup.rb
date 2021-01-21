@@ -29,23 +29,22 @@ domain = get_command_line_argument
 # https://www.rubydoc.info/stdlib/core/IO:readlines
 dns_raw = File.readlines("zone")
 
-dns_raw.filter! { |line| !(line == "" or line == "\n" or line[0] == "#") }
-
 def parse_dns(dns)
   dns_records = {}
-  dns.map do |line|
-    col = line.split(",").map { |column| column.strip }
-    dns_records[col[1]] = [col[0], col[2]]
-  end
+  dns.
+    reject { |line| line.empty? }.
+    map { |line| line.strip.split(", ") }.
+    reject { |record| record.length < 3 }.
+    each { |record| dns_records[record[1]] = { :type => record[0], :target => record[2] } }
   dns_records
 end
 
 def resolve(dns_records, lookup_chain, domain)
   if dns_records.key?(domain)
     val = dns_records[domain]
-    lookup_chain.push(val[1])
-    if val[0] != "A"
-      resolve(dns_records, lookup_chain, val[1])
+    lookup_chain.push(val[:target])
+    if val[:type] != "A"
+      resolve(dns_records, lookup_chain, val[:target])
     end
     lookup_chain
   else
