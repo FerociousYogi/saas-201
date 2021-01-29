@@ -2,15 +2,7 @@ require "active_record"
 
 class Todo < ActiveRecord::Base
   def due_today?
-    due_date == Date.today
-  end
-
-  def overdue?
-    due_date < Date.today
-  end
-
-  def due_later?
-    due_date > Date.today
+    due_date = Date.today
   end
 
   def to_displayable_string
@@ -27,15 +19,15 @@ class Todo < ActiveRecord::Base
     puts "My Todo-list\n\n"
 
     puts "Overdue\n"
-    puts to_displayable_list(all.filter { |todo| todo.overdue? })
+    puts to_displayable_list(all.where("due_date < ?", Date.today).order(:id))
     puts "\n\n"
 
     puts "Due Today\n"
-    puts to_displayable_list(all.filter { |todo| todo.due_today? })
+    puts to_displayable_list(all.where("due_date = ?", Date.today).order(:id))
     puts "\n\n"
 
     puts "Due Later\n"
-    puts to_displayable_list(all.filter { |todo| todo.due_later? })
+    puts to_displayable_list(all.where("due_date > ?", Date.today).order(:id))
     puts "\n\n"
   end
 
